@@ -29,34 +29,85 @@ tracking or an algorithmic feed — is why the wall shows everything in one
 plain reverse-chronological list, oldest at the bottom, nothing curated or
 ranked. What you see is what's actually there.
 
-And the design point the final-project brief itself makes explicitly — build
+And the design point the final-project brief makes explicitly — build
 something that's *better* because other people are using it right now, the
 way small local-multiplayer games (like [*Pico Park*](https://store.steampowered.com/app/1509960/PICO_PARK/))
-only work because everyone is present at once — is what this slice doesn't
-have yet. The wall updates on reload, not live; a second visitor's trace
-doesn't appear until you refresh. That's deliberate for this week (this
-crit's own brief says the real-time layer can wait), but it's the one thing
-standing between this and actually delivering co-presence. Next crit's job.
+only work because everyone is present at once — is now what the wall does.
+While you're here, someone else's thought arrives in the list as they let it
+go, without a reload, and without the wall telling you how many people are
+watching.
+
+## How other people are present
+
+The decision, with the options I rejected, is in
+[`docs/decisions/0002-presence-through-arrivals.md`](docs/decisions/0002-presence-through-arrivals.md).
+In short: other people show up only through what they leave. A committed
+trace reaches every open wall within a second over Server-Sent Events, in
+its place in the newest-first list, and its kind's motif drifts into the
+small "Passing now" field for about twenty seconds. There's no visitor count,
+no roster and no typing indicator. The small "live" label reports this tab's
+connection, not company. If the connection drops, or the server restarts, the
+page reconnects by itself and fills in whatever it missed from the database,
+quietly, without replaying a burst of animation.
+
+## What lasts and what passes
+
+Four kinds of thing live here, and only one of them is public:
+
+- **Traces are permanent and public.** Once posted, a trace is stored in
+  SQLite and stays on the wall. It can't be edited or removed. The relative
+  timestamps age; the trace doesn't.
+- **Motifs in the "Passing now" field are temporary decoration.** They fade
+  after about twenty seconds and are never stored. Their fading deletes
+  nothing.
+- **Drafts belong to one tab.** Unsent text and the chosen kind are kept in
+  that tab's `sessionStorage`, so a reload doesn't lose them. They are
+  cleared when the trace is confirmed saved or when you discard them.
+- **Bookmarks are private to one browser.** "Save" keeps a trace's id in
+  this browser's `localStorage`. They aren't sent to the server, synced,
+  counted or shown to the trace's author, and they don't change the wall's
+  order.
+
+Each trace also has its own address (`/t/<id>`), which opens it in a reading
+view. "Encounter a thought" opens one stored trace at random, once per
+click, respecting the kind you're filtering by.
+
+## Design references
+
+The redesign takes specific lessons from three award entries, adapted rather
+than copied (the wall itself has won nothing):
+
+| Reference | What I took from it |
+| --- | --- |
+| [Lusion v3](https://www.awwwards.com/sites/lusion-v3) (Awwwards Site of the Day, 2 October 2023) | Motion that answers something real. Here the only animation is a trace arriving: the "Passing now" field and a brief per-kind gesture on the list item's motif, all in SVG and CSS, not 3D. |
+| [Frans Hals Museum](https://www.cssdesignawards.com/sites/frans-hals-museum/32702/) (CSS Design Awards Website of the Day, 16 April 2018) | A classic and contemporary pairing carried by typography: a literary serif for the headline and the traces, a plain system sans for every control, thin rules and strict alignment. |
+| [Fukuoka Prefectural Virtual Museum](https://www.cssdesignawards.com/sites/fukuoka-prefectural-virtual-museum/41925/) (CSS Design Awards Website of the Day, 11 September 2022) | Treating a single piece as an exhibit: any trace opens into a focused reading view, while the ordinary list stays one keypress away. |
+
+The palette is warm paper, dark ink, muted moss and one vermilion for the
+main action, with a genuine dark version. No web fonts are loaded.
 
 ## What's enforced vs. what's judged
 
 Enforced, in `spec/`: a trace needs a real kind (one of the six) and non-empty
-text capped at 240 characters, or the server silently drops it rather than
-storing garbage. Traces persist in SQLite on the app's own volume, so they
-survive a restart or a redeploy — not just the current process.
+text capped at 240 characters, or the server drops it rather than storing
+garbage. Traces persist in SQLite on the app's own volume, so they survive a
+restart or a redeploy. `spec/live.test.ts` adds the real-time promises: a
+committed trace reaches every open stream within a second, marked "yours"
+only for its author; near-simultaneous posts get distinct ids in the same
+order everywhere; a reconnecting stream is replayed what it missed; a resent
+submission doesn't duplicate; and user text is escaped on every page.
 
 Judged, by me now and by a reader later: whether the wall actually feels like
 the six similes it's named after, not a message board with a select box on
-it, and whether the plain list stays legible once real people have used it.
-I haven't built moderation, rate limiting, or a way to remove a trace — for a
-wall this small, the honest position is that I haven't yet had a reason to
-need any of them, not that I've reasoned my way out of needing them forever.
+it, and whether the arrivals feel like company rather than a feed.
 
-## What I deliberately didn't build yet
+## What's still missing
 
-No real-time updates (crit 9), no visible distinction between visitors beyond
-"yours vs. everyone else's" (no names, colours, or avatars — deferred until
-there's an actual multi-user feature that needs it), no server-side logging
-beyond what Fly captures by default (crit 11), and no moderation. All four are
-real gaps, not oversights, and each has a crit on the course's own schedule
-that's the right place to close it.
+- No moderation, rate limiting or way to remove a trace. Live delivery makes
+  spam more visible, not less, so this matters more than it did; it still
+  waits for a real reason and its own argument here first.
+- The whole wall ships with every page so search covers all of it. That's
+  fine at hundreds of traces and would need paging in the thousands.
+- No server-side logging beyond what Fly captures by default (crit 11).
+- Tested with separate browser sessions on one machine, not yet with
+  several people on several devices: that's the crit itself.

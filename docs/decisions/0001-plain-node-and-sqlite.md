@@ -1,6 +1,6 @@
 # 0001: plain Node and SQLite, no framework
 
-Status: accepted (crit 8). Revisit at crit 9, when the real-time layer lands.
+Status: accepted (crit 8). Still holds at crit 9: SSE fitted without a framework (see 0002).
 
 ## Context
 

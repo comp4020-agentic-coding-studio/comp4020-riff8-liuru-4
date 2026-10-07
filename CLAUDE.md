@@ -53,6 +53,12 @@ not to build a profile of them.
   ranking of the wall. The list is plain reverse-chronological, always.
 - No feature that exists to bring someone back (streaks, notifications,
   unread badges). The wall doesn't chase anyone.
+- Other people are present only through traces they post
+  (`docs/decisions/0002-presence-through-arrivals.md`): no visitor counts,
+  rosters or typing indicators. The "live" label reports this tab's
+  connection, never how many people are here.
+- Only decoration expires. Scene motifs fade; stored traces never do.
+  Bookmarks and drafts stay in the browser and never reach the server.
 - A trace is permanent once posted: no edit, no delete, no admin override.
   If that becomes a real problem, it needs a README argument first, not a
   quiet code change.
@@ -65,8 +71,9 @@ not to build a profile of them.
 ## Enforced vs. judged
 
 `spec/*.test.ts` is the enforced list: valid kind, non-empty text, a 240
-character cap, and the two course-wide checks (`/` answers, `/readme/`
-publishes `README.md`). Everything else — whether the wall still feels like
+character cap, live delivery with per-viewer ownership, consistent ordering,
+replay on reconnect, no duplicate on resend, escaped text, and the two
+course-wide checks (`/` answers, `/readme/` publishes `README.md`). Everything else — whether the wall still feels like
 the six similes rather than a generic guestbook — is a judgement call, made
 here and revisited each crit, not something a test can catch.
 
@@ -74,5 +81,7 @@ here and revisited each crit, not something a test can catch.
 
 Plain Node (`node:http`, no framework) plus `better-sqlite3` on the Fly
 volume at `/data`. No build step: the server runs its `.ts` source directly,
-so the Docker image only needs `node`, not a bundler. Keep it this small
-unless a real feature needs more.
+so the Docker image only needs `node`, not a bundler. The browser code in
+`src/public/` is plain ES modules served as-is; `shared.js` renders a trace
+for both the server and the client, so keep it free of Node or DOM APIs.
+Keep it this small unless a real feature needs more.
