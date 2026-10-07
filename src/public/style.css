@@ -142,8 +142,9 @@ code {
 .masthead {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-2) var(--space-4);
   padding: var(--space-4) 0 var(--space-3);
   border-bottom: 1px solid var(--rule);
 }
@@ -157,6 +158,7 @@ code {
   text-decoration: none;
   font-size: 1.5rem;
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .wordmark-latin {
@@ -604,6 +606,19 @@ textarea {
   border-block: 1px solid var(--rule);
 }
 
+.browse-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4) var(--space-5);
+}
+
+.search-field {
+  display: grid;
+  flex: 1 1 16rem;
+  gap: var(--space-2);
+}
+
 .search-row {
   display: flex;
   flex-wrap: wrap;
@@ -910,7 +925,7 @@ dialog::backdrop {
 
 /* ---------------------------------------------------------------- wide screens */
 
-@media (width >= 52rem) {
+@media (width >= 46rem) {
   .intro {
     grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 1fr);
     gap: var(--space-7);
@@ -936,6 +951,15 @@ dialog::backdrop {
 }
 
 @media (width < 24rem) {
+  .wordmark {
+    gap: var(--space-2);
+  }
+
+  .site-nav a,
+  .site-nav .quiet-button {
+    padding-inline: var(--space-2);
+  }
+
   .kind-grid {
     grid-template-columns: minmax(0, 1fr);
   }

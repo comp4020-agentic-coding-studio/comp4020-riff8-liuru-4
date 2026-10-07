@@ -159,7 +159,6 @@ function applyFilters() {
   const none = total > 0 && shown === 0;
   $("no-results").hidden = !none;
   if (none) $("no-results-text").textContent = noResultsText();
-  $("clear-filters").hidden = !filtering();
   // The count is for orientation while searching, so it's only shown then,
   // and announced after typing settles rather than on every keystroke.
   clearTimeout(resultsTimer);
@@ -294,11 +293,11 @@ const scene = /** @type {HTMLElement} */ (document.querySelector(".scene"));
 
 /** @param {number} id */
 function placement(id) {
-  let h = (id * 2654435761) >>> 0;
-  h ^= h >>> 15;
+  let h = Math.imul(id, 2654435761) >>> 0;
+  h = (h ^ (h >>> 15)) >>> 0;
   h = Math.imul(h, 2246822519) >>> 0;
-  h ^= h >>> 13;
-  return { x: 26 + (h % 268), y: 26 + ((h >>> 11) % 88), r: ((h >>> 5) % 30) - 15 };
+  h = (h ^ (h >>> 13)) >>> 0;
+  return { x: 26 + (h % 268), y: 22 + ((h >>> 11) % 50), r: ((h >>> 5) % 30) - 15 };
 }
 
 /** @param {PublicTrace} t */

@@ -64,7 +64,7 @@ function filterRadios(): string {
 function sceneRest(): string {
   return KINDS.map(
     (k, i) =>
-      `<g class="rest" transform="translate(${34 + i * 50} 128) scale(1.15)"><g transform="translate(-12 -12)">${KIND_META[k].motif}</g></g>`,
+      `<g class="rest" transform="translate(${34 + i * 50} 98) scale(1.15)"><g transform="translate(-12 -12)">${KIND_META[k].motif}</g></g>`,
   ).join("");
 }
 
@@ -112,8 +112,8 @@ export function renderWall(traces: PublicTrace[], opts: WallOptions = {}): strin
           <p class="lede">One shared wall where anyone can leave a passing thought as a dream, illusion, bubble, shadow, dew or lightning. Thoughts left by others arrive here as they happen.</p>
         </div>
         <figure class="scene" aria-hidden="true">
-          <svg viewBox="0 0 320 180" class="scene-svg" preserveAspectRatio="xMidYMid meet">
-            <line class="scene-line" x1="8" y1="150" x2="312" y2="150" />
+          <svg viewBox="0 0 320 140" class="scene-svg" preserveAspectRatio="xMidYMid meet">
+            <line class="scene-line" x1="8" y1="118" x2="312" y2="118" />
             <g class="scene-rest">${sceneRest()}</g>
             <g class="scene-accents"></g>
           </svg>
@@ -154,18 +154,22 @@ export function renderWall(traces: PublicTrace[], opts: WallOptions = {}): strin
               <legend>Show</legend>
               <div class="chips">${filterRadios()}</div>
             </fieldset>
-            <fieldset class="filter-scope">
-              <legend>From</legend>
-              <div class="chips">
-                <label class="chip"><input type="radio" name="scope" value="everyone" checked /><span>Everyone</span></label>
-                <label class="chip"><input type="radio" name="scope" value="yours" /><span>Yours</span></label>
-                <label class="chip"><input type="radio" name="scope" value="saved" /><span>Saved</span></label>
+            <div class="browse-row">
+              <fieldset class="filter-scope">
+                <legend>From</legend>
+                <div class="chips">
+                  <label class="chip"><input type="radio" name="scope" value="everyone" checked /><span>Everyone</span></label>
+                  <label class="chip"><input type="radio" name="scope" value="yours" /><span>Yours</span></label>
+                  <label class="chip"><input type="radio" name="scope" value="saved" /><span>Saved</span></label>
+                </div>
+              </fieldset>
+              <div class="search-field">
+                <label for="search" class="search-label">Search</label>
+                <div class="search-row">
+                  <input type="search" id="search" autocomplete="off" spellcheck="false" />
+                  <button type="button" class="quiet-button" id="clear-filters">Clear</button>
+                </div>
               </div>
-            </fieldset>
-            <div class="search-row">
-              <label for="search" class="search-label">Search</label>
-              <input type="search" id="search" autocomplete="off" spellcheck="false" />
-              <button type="button" class="quiet-button" id="clear-filters">Clear</button>
             </div>
             <p class="saved-note" id="saved-note" hidden>Saved thoughts are kept in this browser only. They aren&rsquo;t shared, synced, or shown to anyone, including the person who wrote them.</p>
             <div class="browse-foot">
