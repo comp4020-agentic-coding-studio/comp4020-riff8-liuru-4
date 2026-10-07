@@ -123,13 +123,17 @@ function sendJson(res: ServerResponse, status: number, body: unknown, setCookie?
   res.end(JSON.stringify(body));
 }
 
-function sendHtml(res: ServerResponse, status: number, html: string, setCookie?: string): void {
+// The whole wall rides in each page (as markup and as JSON), so compress it.
+function sendHtml(req: IncomingMessage, res: ServerResponse, status: number, html: string, setCookie?: string): void {
+  const gzip = /\bgzip\b/.test(req.headers["accept-encoding"] ?? "");
   res.writeHead(status, {
     "content-type": "text/html; charset=utf-8",
     "cache-control": "no-store",
+    vary: "accept-encoding",
+    ...(gzip ? { "content-encoding": "gzip" } : {}),
     ...(setCookie ? { "set-cookie": setCookie } : {}),
   });
-  res.end(html);
+  res.end(gzip ? gzipSync(html) : html);
 }
 
 const server = createServer(async (req, res) => {
@@ -142,7 +146,7 @@ const server = createServer(async (req, res) => {
 
   try {
     if (url.pathname === "/" && req.method === "GET") {
-      sendHtml(res, 200, renderWall(wall()), setCookie);
+      sendHtml(req, res, 200, renderWall(wall()), setCookie);
       return;
     }
 
@@ -151,9 +155,9 @@ const server = createServer(async (req, res) => {
       const raw = decodeURIComponent(traceLink[1]);
       const found = /^[1-9]\d{0,15}$/.test(raw) ? traceById(Number(raw)) : undefined;
       if (found) {
-        sendHtml(res, 200, renderWall(wall(), { focus: toPublic(found, visitorId) }), setCookie);
+        sendHtml(req, res, 200, renderWall(wall(), { focus: toPublic(found, visitorId) }), setCookie);
       } else {
-        sendHtml(res, 404, renderWall(wall(), { missingId: raw }), setCookie);
+        sendHtml(req, res, 404, renderWall(wall(), { missingId: raw }), setCookie);
       }
       return;
     }
@@ -213,7 +217,7 @@ const server = createServer(async (req, res) => {
 
     if (url.pathname === "/readme/" && req.method === "GET") {
       const md = readFileSync("README.md", "utf8");
-      sendHtml(res, 200, renderReadme(await marked.parse(md)));
+      sendHtml(req, res, 200, renderReadme(await marked.parse(md)));
       return;
     }
 
